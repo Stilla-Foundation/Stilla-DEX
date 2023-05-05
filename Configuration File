@@ -2,8 +2,8 @@ It depends on what kind of configuration you want to set up for the smart contra
 
 ```
 {
-  "tokenName": "MyToken",
-  "tokenSymbol": "MTK",
+  "tokenName": "stilla",
+  "tokenSymbol": "STL",
   "initialSupply": 1000000,
   "decimalUnits": 18,
   "exchangeRate": 100,
