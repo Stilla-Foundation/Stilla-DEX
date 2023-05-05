@@ -1,0 +1,57 @@
+Introduction:
+Stilla is a decentralized exchange platform that allows users to trade Ethereum-based tokens with each other. This smart contract provides the necessary functionalities for the Stilla platform, such as placing and filling orders, canceling orders, and keeping track of token balances and order histories.
+
+Features:
+- Place an order to buy a token with another token
+- Cancel an order
+- Fill an order by transferring tokens between buyers and sellers
+- Keep track of token balances for each user and token
+- Keep track of order history for each user and token
+
+Usage:
+1. Place an order
+- Call the `placeOrder` function with the following parameters:
+    - `tokenBuy`: The address of the token to buy
+    - `tokenSell`: The address of the token to sell
+    - `amountBuy`: The amount of the token to buy
+    - `amountSell`: The amount of the token to sell
+- The function will create a new order with the given parameters and store it in the `orders` mapping. It will also add the order ID to the `orderHistory` mapping for the user and token.
+- An `OrderPlaced` event will be emitted with the order details.
+
+2. Cancel an order
+- Call the `cancelOrder` function with the following parameter:
+    - `id`: The ID of the order to cancel
+- The function will check if the sender is the owner of the order and if so, transfer the tokens back to the sender and delete the order from the `orders` mapping.
+
+3. Fill an order
+- Call the `fillOrder` function with the following parameter:
+    - `id`: The ID of the order to fill
+- The function will check if the sender is not the owner of the order and if so, transfer the tokens between the buyer and the seller, update the token balances and order histories, and delete the order from the `orders` mapping.
+- An `OrderFilled` event will be emitted with the order details.
+
+4. Get token balance
+- Call the `tokens` mapping with the following parameters:
+    - `user`: The address of the user
+    - `token`: The address of the token
+- The function will return the balance of the token for the user.
+
+5. Get order history
+- Call the `orderHistory` mapping with the following parameters:
+    - `user`: The address of the user
+    - `token`: The address of the token
+- The function will return an array of order IDs for the user and token.
+
+Prerequisites:
+- Ethereum node or a testnet (e.g., Rinkeby, Ropsten)
+- Solidity compiler version 0.8.0 or higher
+- Truffle framework
+
+Deployment:
+1. Clone the repository or copy the smart contract code into a new file.
+2. Compile the smart contract using the Solidity compiler.
+3. Write and run tests for the smart contract using a testing framework (e.g., Truffle, Remix).
+4. Deploy the smart contract to an Ethereum network using a deployment script or a deployment tool (e.g., Truffle, Remix).
+5. Verify the smart contract code and contract address on a blockchain explorer (e.g., Etherscan).
+
+Conclusion:
+The Stilla smart contract provides the necessary functionalities for a decentralized exchange platform for Ethereum-based tokens. It allows users to place and fill orders, cancel orders, and keep track of token balances and order histories. The smart contract can be deployed to an Ethereum network using a deployment script or a deployment tool.
