@@ -1,0 +1,84 @@
+// Import the required modules
+const { assert } = require('chai');
+const { ethers } = require('hardhat');
+
+// Define the describe block for the exchange contract
+describe('Decentralized Exchange', function () {
+  let exchange;
+  let stillaToken;
+  let daiToken;
+  let stillaPay;
+  let narigamba;
+
+  // Define the beforeEach block to deploy the contracts
+  beforeEach(async function () {
+    const Exchange = await ethers.getContractFactory('Exchange');
+    exchange = await Exchange.deploy();
+
+    const StillaToken = await ethers.getContractFactory('StillaToken');
+    stillaToken = await StillaToken.deploy();
+
+    const DaiToken = await ethers.getContractFactory('DaiToken');
+    daiToken = await DaiToken.deploy();
+
+    stillaPay = 'Stillapay';
+    narigamba = 'narigamba';
+  });
+
+  // Define the it block to test the order placement
+  it('should allow users to place orders to buy and sell tokens', async function () {
+    const amountSell = ethers.utils.parseEther('10');
+    const amountBuy = ethers.utils.parseEther('5');
+
+    // Approve the transfer of the sell token to the exchange contract
+    await daiToken.approve(exchange.address, amountSell);
+
+    // Place the sell order
+    await exchange.placeOrder(daiToken.address, stillaToken.address, amountBuy, amountSell, stillaPay, narigamba);
+
+    // Check that the sell order was placed successfully
+    const order = await exchange.getOrder(0);
+    assert.equal(order[0], daiToken.address);
+    assert.equal(order[1], stillaToken.address);
+    assert.equal(order[2], amountBuy);
+    assert.equal(order[3], amountSell);
+  });
+
+  // Define the it block to test the order cancellation
+  it('should allow users to cancel their own orders', async function () {
+    const amountSell = ethers.utils.parseEther('10');
+    const amountBuy = ethers.utils.parseEther('5');
+
+    // Approve the transfer of the sell token to the exchange contract
+    await daiToken.approve(exchange.address, amountSell);
+
+    // Place the sell order
+    await exchange.placeOrder(daiToken.address, stillaToken.address, amountBuy, amountSell, stillaPay, narigamba);
+
+    // Cancel the order
+    await exchange.cancelOrder(0);
+
+    // Check that the order was cancelled successfully
+    const order = await exchange.getOrder(0);
+    assert.equal(order[0], ethers.constants.AddressZero);
+    assert.equal(order[1], ethers.constants.AddressZero);
+    assert.equal(order[2], 0);
+    assert.equal(order[3], 0);
+  });
+
+  // Define the it block to test the order filling
+  it('should allow users to fill orders by exchanging tokens', async function () {
+    const amountSell = ethers.utils.parseEther('10');
+    const amountBuy = ethers.utils.parseEther('5');
+
+    // Mint the sell token to the seller's wallet
+    await daiToken.mint(await ethers.provider.getSigner(1).getAddress(), amountSell);
+
+    // Approve the transfer of the sell token to the exchange contract
+    await daiToken.approve(exchange.address, amountSell);
+
+    // Place the sell order
+    await exchange.placeOrder(daiToken.address, stillaToken.address, amountBuy, amountSell, stillaPay, narigamba);
+
+    // Mint the buy token to the buyer's wallet
+    await stillaToken.mint
