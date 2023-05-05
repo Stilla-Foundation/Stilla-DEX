@@ -1,0 +1,25 @@
+It depends on what kind of configuration you want to set up for the smart contract. Here's an example of a configuration file that sets up some parameters for the smart contract:
+
+```
+{
+  "tokenName": "MyToken",
+  "tokenSymbol": "MTK",
+  "initialSupply": 1000000,
+  "decimalUnits": 18,
+  "exchangeRate": 100,
+  "mobileMoneyMerchantID": "Stillapay",
+  "mobileMoneyAPI": "narigamba"
+}
+```
+
+In this example, we have set up the following parameters:
+
+- `tokenName`: The name of the token
+- `tokenSymbol`: The symbol of the token
+- `initialSupply`: The initial supply of the token
+- `decimalUnits`: The number of decimal places the token uses
+- `exchangeRate`: The exchange rate between the token and the mobile money currency
+- `mobileMoneyMerchantID`: The ID of the mobile money merchant used for the exchange
+- `mobileMoneyAPI`: The API used for the mobile money service
+
+These parameters can be used by the deployment script to configure the smart contract accordingly.
