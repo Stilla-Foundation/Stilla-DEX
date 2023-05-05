@@ -1,0 +1,146 @@
+The code is a smart contract written in the Solidity programming language, which enables the creation of decentralized applications on the Ethereum blockchain. The contract defines a decentralized exchange called "Stilla" which allows users to place orders to buy and sell different tokens.
+
+The contract begins by importing an interface for ERC20 tokens, which is a standard interface for fungible tokens on the Ethereum blockchain. The contract then defines a struct called "Order", which represents an order placed by a user to buy or sell tokens on the exchange.
+pragma solidity ^0.8.0;
+
+// Interface for ERC20 tokens
+interface IERC20 {
+    function transfer(address to, uint256 value) external returns (bool);
+    function balanceOf(address owner) external view returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 value) external returns (bool);
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+}
+
+contract Stilla {
+    struct Order {
+        address payable trader;
+        address tokenBuy;
+        address tokenSell;
+        uint256 amountBuy;
+        uint256 amountSell;
+        uint256 timestamp;
+    }
+
+    mapping(address => mapping(address => uint256)) public tokens; // Mapping of token balances
+    mapping(bytes32 => Order) public orders; // Mapping of order ID to order
+    mapping(address => mapping(address => bytes32[])) public orderHistory; // Mapping of user and token to order history
+
+    event OrderPlaced(bytes32 indexed id, address indexed trader, address indexed tokenBuy, address tokenSell, uint256 amountBuy, uint256 amountSell, uint256 timestamp);
+    event OrderFilled(bytes32 indexed id, address indexed trader, address indexed tokenBuy, address tokenSell, uint256 amountBuy, uint256 amountSell, uint256 timestamp);
+
+    // Place an order to buy a token with another token
+    function placeOrder(address tokenBuy, address tokenSell, uint256 amountBuy, uint256 amountSell) public {
+        require(amountBuy > 0 && amountSell > 0, "Invalid order amount");
+        require(IERC20(tokenSell).balanceOf(msg.sender) >= amountSell, "Insufficient balance");
+        bytes32 id = keccak256(abi.encodePacked(msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, block.timestamp));
+        orders[id] = Order(payable(msg.sender), tokenBuy, tokenSell, amountBuy, amountSell, block.timestamp);
+        orderHistory[msg.sender][tokenSell].push(id);
+        emit OrderPlaced(id, msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, block.timestamp);
+    }
+
+    // Cancel an order
+    function cancelOrder(bytes32 id) public {
+        require(orders[id].trader == msg.sender, "Unauthorized");
+        IERC20(orders[id].tokenSell).transfer(msg.sender, orders[id].amountSell);
+        delete orders[id];
+    }
+
+    // Fill an order by transferring tokens between buyers and sellers
+    function fillOrder(bytes32 id) public {
+        require(orders[id].trader != msg.sender, "Unauthorized");
+        uint256 amountBuy = orders[id].amountBuy;
+        uint256 amountSell = orders[id].amountSell;
+        address buyer = msg.sender;
+        address seller = orders[id].trader;
+        address tokenBuy = orders[id].tokenBuy;
+        address tokenSell = orders[id].tokenSell;
+        require(IERC20(tokenBuy).balanceOf(buyer) >= amountBuy, "Insufficient balance");
+        require(IERC20(tokenSell).balanceOf(seller) >= amountSell, "Insufficient balance");
+        require(IERC20(tokenSell).allowance(seller, address(this)) >= amountSell, "Insufficient allowance");
+        require(tokens[buyer][tokenBuy] >= amountBuy, "Insufficient balance");
+        require(tokens[seller][tokenSell] >= amountSell, "Insufficient balance");
+
+        IERC20(tokenBuy).transferFrom(buyer, seller, amountBuy);
+        IERC20(tokenSell
+
+
+
+
+
+
+pragma solidity ^0.8.0;
+
+// Interface for ERC20 tokens
+interface IERC20 {
+    function transfer(address to, uint256 value) external returns (bool);
+    function balanceOf(address owner) external view returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 value) external returns (bool);
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+}
+
+contract Stilla {
+    address public stillapayAddress = 0x1234567890123456789012345678901234567890; // Replace with the actual Stillapay address
+    string public narigambaAPI = "https://narigamba-api.stilla.com/"; // Replace with the actual Narigamba API URL
+
+    struct Order {
+        address payable trader;
+        address tokenBuy;
+        address tokenSell;
+        uint256 amountBuy;
+        uint256 amountSell;
+        uint256 timestamp;
+    }
+
+    mapping(address => mapping(address => uint256)) public tokens; // Mapping of token balances
+    mapping(bytes32 => Order) public orders; // Mapping of order ID to order
+    mapping(address => mapping(address => bytes32[])) public orderHistory; // Mapping of user and token to order history
+
+    event OrderPlaced(bytes32 indexed id, address indexed trader, address indexed tokenBuy, address tokenSell, uint256 amountBuy, uint256 amountSell, uint256 timestamp);
+    event OrderFilled(bytes32 indexed id, address indexed trader, address indexed tokenBuy, address tokenSell, uint256 amountBuy, uint256 amountSell, uint256 timestamp);
+
+    // Place an order to buy a token with another token
+    function placeOrder(address tokenBuy, address tokenSell, uint256 amountBuy, uint256 amountSell) public {
+        require(amountBuy > 0 && amountSell > 0, "Invalid order amount");
+        require(IERC20(tokenSell).balanceOf(msg.sender) >= amountSell, "Insufficient balance");
+
+        // Send the order to Stillapay via Narigamba API
+        bytes32 orderId = keccak256(abi.encodePacked(msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, block.timestamp));
+        sendOrderToStillapay(orderId, tokenBuy, tokenSell, amountBuy, amountSell);
+
+        orders[orderId] = Order(payable(msg.sender), tokenBuy, tokenSell, amountBuy, amountSell, block.timestamp);
+        orderHistory[msg.sender][tokenSell].push(orderId);
+        emit OrderPlaced(orderId, msg.sender, tokenBuy, tokenSell, amountBuy, amountSell, block.timestamp);
+    }
+
+    // Cancel an order
+    function cancelOrder(bytes32 orderId) public {
+        require(orders[orderId].trader == msg.sender, "Unauthorized");
+
+        // Cancel the order on Stillapay via Narigamba API
+        cancelOrderOnStillapay(orderId);
+
+        IERC20(orders[orderId].tokenSell).transfer(msg.sender, orders[orderId].amountSell);
+        delete orders[orderId];
+    }
+
+    // Fill an order by transferring tokens between buyers and sellers
+    function fillOrder(bytes32 orderId) public {
+        require(orders[orderId].trader != msg.sender, "Unauthorized");
+        uint256 amountBuy = orders[orderId].amountBuy;
+        uint256 amountSell = orders
+
+
+
+
+
+The IERC20 interface defines the functions for interacting with an ERC20 token.
+The Stilla contract defines a struct called Order to represent an order to buy or sell tokens. Each order has a trader, the addresses of the tokens being traded, the amount of the buying token to be purchased, the amount of the selling token to be exchanged, and a timestamp.
+The contract also defines several mappings to store the order and token balances data:
+tokens is a mapping of token balances for each user and token pair.
+orders is a mapping of order IDs to orders.
+orderHistory is a mapping of user and token to order history.
+The placeOrder function allows a user to place an order to buy a token with another token. It checks that the order amount is valid, the user has sufficient balance, generates an order ID, saves the order data to the orders mapping, and adds the order ID to the user's order history.
+The cancelOrder function allows a user to cancel their own order. It checks that the user is authorized to cancel the order, transfers the remaining tokens back to the user, and deletes the order data from the orders mapping.
+The fillOrder function allows a user to fill an existing order by transferring tokens between the buyer and seller. It checks that the user is authorized to fill the order, checks that the buyer and seller have sufficient balance and allowance, transfers the tokens between the users, and updates the token balances for both users.
