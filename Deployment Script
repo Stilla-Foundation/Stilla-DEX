@@ -1,0 +1,53 @@
+const Web3 = require('web3');
+const Stilla = require('./Stilla.sol');
+
+// Set up web3 provider
+const provider = new Web3.providers.HttpProvider('http://localhost:8545');
+const web3 = new Web3(provider);
+
+// Set up account and gas variables
+const account = '0x...'; // Replace with the Ethereum address of your account
+const gasPrice = web3.utils.toWei('10', 'gwei');
+const gasLimit = 3000000;
+
+// Deploy Stilla contract
+async function deployStillaContract() {
+  // Compile the Stilla contract
+  const input = {
+    language: 'Solidity',
+    sources: {
+      'Stilla.sol': {
+        content: Stilla.source
+      }
+    },
+    settings: {
+      outputSelection: {
+        '*': {
+          '*': ['*']
+        }
+      }
+    }
+  };
+  const output = JSON.parse(solc.compile(JSON.stringify(input)));
+  const abi = output.contracts['Stilla.sol'].Stilla.abi;
+  const bytecode = output.contracts['Stilla.sol'].Stilla.evm.bytecode.object;
+
+  // Deploy the contract
+  const Contract = new web3.eth.Contract(abi);
+  const deploy = Contract.deploy({
+    data: bytecode
+  });
+  const gas = await deploy.estimateGas();
+  const tx = {
+    from: account,
+    gas: gasLimit,
+    gasPrice: gasPrice
+  };
+  const deployedContract = await deploy.send(tx);
+
+  // Print contract address and ABI
+  console.log('Stilla contract deployed at address: ', deployedContract.options.address);
+  console.log('Stilla contract ABI: ', JSON.stringify(abi));
+}
+
+deployStillaContract();
